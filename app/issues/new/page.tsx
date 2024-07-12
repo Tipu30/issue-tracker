@@ -1,6 +1,6 @@
 'use client';
 import { Button, Callout, Text, TextField } from '@radix-ui/themes'
-import SimpleMDE from "react-simplemde-editor";
+import dynamic from 'next/dynamic';
 import "easymde/dist/easymde.min.css";
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
@@ -12,6 +12,12 @@ import { z } from 'zod';
 import ErrorMessage from '@/app/components/Errormessage';
 import Spinner from '@/app/components/Spinner';
 
+const SimpleMDE = dynamic(
+    () => import('react-simplemde-editor'), {
+    ssr: false
+}
+)
+
 type IssueForm = z.infer<typeof createIssueSchema>;
 
 const NewIssuePage = () => {
@@ -21,6 +27,19 @@ const NewIssuePage = () => {
     });
     const [error, setError] = useState('');
     const [isSubmitting, setSubmitting] = useState(false);
+
+    const onSubmit = handleSubmit(async (data) => {
+        try {
+            setSubmitting(true);
+            axios.post('/api/issues', data);
+            router.push('/issues');
+        } catch (error) {
+            setSubmitting(false);
+            setError('An unexpected error occured.');
+
+        }
+    }
+    )
     return (
         <div className='max-w-xl '>
             {error && <Callout.Root color='red' className='mb-5'>
@@ -29,29 +48,18 @@ const NewIssuePage = () => {
 
 
             }
-            <form className='space-y-3' onSubmit={handleSubmit(async (data) => {
-                try {
-                    setSubmitting(true);
-                    axios.post('/api/issues', data);
-                    router.push('/issues');
-                } catch (error) {
-                    setSubmitting(false);
-                    setError('An unexpected error occured.');
-
-                }
-            }
-            )}>
+            <form className='space-y-3' onSubmit={onSubmit}>
                 <TextField.Root>
                     <TextField.Input placeholder='Title' {...register('title')} />
                 </TextField.Root>
                 <ErrorMessage>
                     {errors.title?.message}
                 </ErrorMessage>
-                <Controller
+                {/* <Controller
                     name="description"
                     control={control}
                     render={({ field }) => <SimpleMDE placeholder='Description' {...field} />}
-                />
+                /> */}
                 <ErrorMessage>
                     {errors.description?.message}
                 </ErrorMessage>
