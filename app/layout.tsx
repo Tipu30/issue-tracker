@@ -1,3 +1,4 @@
+
 // import "@radix-ui/themes/styles.css";
 // import "./theme-config.css";
 // import "./globals.css";
@@ -40,12 +41,3 @@
 //     </html>
 //   );
 // }
-import React from 'react'
-
-const layout = () => {
-  return (
-    <div>layout</div>
-  )
-}
-
-export default layout
